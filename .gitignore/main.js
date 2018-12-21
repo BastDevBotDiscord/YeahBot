@@ -2,25 +2,23 @@ const config = require('./config.json');
 const Discord = require('discord.js');
 const bot = new Discord.Client({disableEveryone: true});
 const superagent = require("superagent");
-
-
+const fs = require('fs');
+const ascii = require('ascii-art');
 
 bot.on('ready', () => {
   console.log(`Bot has started, with ${bot.users.size} users, in ${bot.channels.size} channels of ${bot.guilds.size} guilds.`);
-  setInterval(changing_status, 10000);
+  setInterval(changing_status, 4000);
 
   function changing_status() {
     let status = [`${bot.guilds.size} serveurs`, `Mon créateur Lousestone #9572!`, `yeah.help pour voir les commandes`, "Version [2.2.9]", `${bot.users.size} utilisateurs`, bot.ping + 'ms',"#roadto10servs"]
     let random = status[Math.floor(Math.random() * status.length)]
     
-    bot.user.setGame(random, "https://www.twitch.tv/user");
+    bot.user.setGame(random, 'https://twitch.tv/user');
+    
+  
 }
 
 });
-
-
-
-
 
 bot.on('message', async message => {
     if (message.author.bot) return;
@@ -30,8 +28,9 @@ bot.on('message', async message => {
     let messageArray = message.content.split(' ');
     let command = messageArray[0];
     let args = messageArray.slice(1);
+    let coins = require("./coins.json");
+    
 
-  
 
   //Kick
    if (command === `${prefix}kick`) {
@@ -131,11 +130,12 @@ bot.on('message', async message => {
      .addField('Nom du bot', bot.user.username)
      .addField('Créer le ', bot.user.createdAt)
      .addField('Commandes', '-------------')
-     .addField("Général :speech_balloon:", '```say,chatglobal```')
+     .addField("Général :speech_balloon:", '```say,chatglobal,ascii```')
      .addField(`Informations :bar_chart:`, '```help,infoserv,invite,serverlist```')
      .addField('Images :frame_photo:','```cat,dog```')
      .addField('Modérations :lock:','```kick,ban,report,warn,seewarns,deletewarn```')
      .addField('Administration :lock:','```clear,ping,addrole,removerole,sondage```')
+     .addField('Money', '```money,addmoney```')
      .setFooter("Info")
      .setTimestamp();
      
@@ -203,6 +203,7 @@ bot.on('message', async message => {
        .addField('Nom du bot', bot.user.username)
        .addField("Tu veux m'inviter ? ", "[Génial ! Tiens voilà le lien](https://discordapp.com/oauth2/authorize?client_id=521110161176264734&scope=bot&permissions=8)")
        .addField("Serveur Support","[Génial ! Tiens voilà le lien](https://discord.gg/UWTCAQj)")
+       .addField("Code du Bot","[Lien](https://github.com/BastDevBotDiscord/YeahBot/tree/master/.gitignore)")
        .setFooter("Invite")
        .setTimestamp();
        
@@ -229,7 +230,7 @@ bot.on('message', async message => {
        .setTitle('ServerList')
        .setColor('RANDOM')
        .setThumbnail(botIcon) 
-       .addField(bot.guilds.map(r => r.name + ` | **${r.memberCount} membres**`))
+       .addField(bot.guilds.map(r => r.name + ` | **${r.memberCount} membres**`, "Ajoutez le bot sur plus de serveurs pour qu'on atteigne les 20 serveurs !"))
        .setFooter("Serverlist")
        .setTimestamp();
       return message.channel.send(embed);
@@ -363,11 +364,10 @@ bot.on('message', async message => {
 
  //Chat Global
  if (command === `${prefix}chatglobal`) {
-   let y03 = args.join(" ")
    var y02 = message.guild.channels.find('name', 'chat-global');
    if(!y02) return message.reply("Veuillez créer le channel chat-global pour utiliser cet commande")
    if(message.channel.name !== 'chat-global') return message.reply("Commande à effectuer dans le salon chat-global svp")
-   if(!args[0]) return message.reply("Veuillez écrire un message pour la globalité des serveurs");
+   if(!args[1]) return message.reply("Veuillez écrire un message pour la globalité des serveurs");
    var embedglobal = new Discord.RichEmbed()
    .setColor('RANDOM')
    .setTitle('Message Global YeahBot')
@@ -381,7 +381,6 @@ bot.on('message', async message => {
 };
 
 //Warns
-var fs = require('fs');
 
 let warns = JSON.parse(fs.readFileSync("./warns.json", "utf8"));
 
@@ -395,7 +394,7 @@ if(!message.guild.member(message.author).hasPermission("MANAGE_GUILD")) return m
 
 if(message.mentions.users.size === 0) {
 
-  return message.channel.send("**:x: Vous n'avez mentionnée aucun utilisateur**");
+  return message.channel.send("**:x: Vous n'avez mentionner aucun utilisateur**");
 
 }else{
 
@@ -646,8 +645,77 @@ if (command === `${prefix}seewarns`) {
         }
     
       }
+  
 
-});
+  //Ascii
+  if (command === `${prefix}ascii` ) {
+  ascii.font(args.join(' '), 'Doom', function(rendered) {
+    rendered = rendered.trimRight();
+    if (rendered.length > 2000) return message.channel.send('Désolé ce message est trop long :(')
+    message.channel.send(rendered, {
+       code: 'md'
+    });
+  });
+  
+};
+
+//Coins
+if (command === `${prefix}money` ) {
+if(!coins[message.author.id]){
+  coins[message.author.id] = {
+    coins: 0
+  };
+}
+
+let uCoins = coins[message.author.id].coins;
+
+
+let coinEmbed = new Discord.RichEmbed()
+.setAuthor(message.author.username)
+.setColor("RANDOM")
+.addField("💸", uCoins);
+
+message.channel.send(coinEmbed).then(msg => {msg.delete(5000)});
+
+}
+
+ //Addmoney
+ if (command === `${prefix}addmoney` ) {
+  if(!coins[message.author.id]){
+    return message.reply("Vous n'avez pas d'argent")
+  }
+
+  let pUser = message.guild.member(message.mentions.users.first()) || message.guild.members.get(args[0]);
+
+  if(!coins[pUser.id]){
+    coins[pUser.id] = {
+      coins: 0
+    };
+  }
+
+  let pCoins = coins[pUser.id].coins;
+  let sCoins = coins[message.author.id].coins;
+
+  if(sCoins < args[0]) return message.reply("Not enough coins there!");
+
+  coins[message.author.id] = {
+    coins: sCoins - parseInt(args[1])
+  };
+
+  coins[pUser.id] = {
+    coins: pCoins + parseInt(args[1])
+  };
+
+  message.channel.send(`${message.author} has given ${pUser} ${args[1]} coins.`);
+
+  fs.writeFile("./coins.json", JSON.stringify(coins), (err) => {
+    if(err) cosole.log(err)
+  });
+
+
+}
+
+ });
 
 bot.login(config.token);
 
