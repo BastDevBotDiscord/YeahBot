@@ -1401,7 +1401,7 @@ if(message.content.includes("bite")){
     
  });
 
-bot.login(config.token);
+bot.login(process.env.BOT_TOKEN);
 
 bot.on("guildCreate", async guild => {
   let guildCreateChannel = bot.channels.get(`526472099263676436`);
