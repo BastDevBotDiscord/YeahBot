@@ -40,7 +40,7 @@ bot.on('ready', () => {
   setInterval(changing_status, 4000);
 
   function changing_status() {
-    let status = [`${bot.guilds.size} serveurs`, `Mon créateur Winstone !`, `yeah.help pour voir les commandes`, "Version [2.3.1]", `${bot.users.size} utilisateurs`, bot.ping + 'ms',"#roadto20servs", "Musique ?  yeah.play ","Radio ? yeah.nrj,yeah.funradio,yeah.syrock fait yeah.help pour connaitre les autres !"]
+    let status = [`${bot.guilds.size} serveurs`, `Mon créateur Winstone !`, `yeah.help pour voir les commandes`, "Version [1.0.0]", `${bot.users.size} utilisateurs`, bot.ping + 'ms',"#roadto20servs", "Musique ?  yeah.play ","Radio ? yeah.nrj,yeah.funradio,yeah.syrock fait yeah.help pour connaitre les autres !"]
     let random = status[Math.floor(Math.random() * status.length)]
     
     bot.user.setGame(random, 'https://twitch.tv/user');
